@@ -7,6 +7,9 @@ const int colorWhite = 0xFFEDF2FA;
 const int colorGray = 0xFFDAE1ED;
 
 var displayedNumber = ValueNotifier('0');
+double lastNumber = 0;
+String lastOperator = '';
+bool binaryOperationRequested = false;
 
 void main() {
   runApp(const MyApp());
@@ -49,22 +52,7 @@ class ButtomCalc extends StatelessWidget {
           ),
           child: TextButton(
             onPressed: () {
-              // TODO: Revisar os if's
-              if ((double.tryParse(buttomText) != null) ||
-                  (buttomText == ',')) {
-                print(displayedNumber.value);
-                if ((displayedNumber.value == '0') && (buttomText != ',')) {
-                  displayedNumber.value = buttomText;
-                } else if ((displayedNumber.value == '0') &&
-                    (buttomText == ',')) {
-                  displayedNumber.value = displayedNumber.value + buttomText;
-                } else if ((displayedNumber.value.contains(',')) &&
-                    buttomText == ',') {
-                  displayedNumber.value = displayedNumber.value;
-                } else {
-                  displayedNumber.value = displayedNumber.value + buttomText;
-                }
-              }
+              processInput(buttomText);
             },
             style: TextButton.styleFrom(padding: const EdgeInsets.all(16)),
             child: Text(
@@ -200,7 +188,7 @@ class Keyboard extends StatelessWidget {
             ButtomCalc(
                 colorText: colorDark,
                 colorBackground: colorWhite,
-                buttomText: ','),
+                buttomText: '.'),
             ButtomCalc(
                 colorText: colorWhite,
                 colorBackground: colorBlue,
@@ -234,3 +222,107 @@ class Display extends StatelessWidget {
     );
   }
 }
+
+bool isNumber(var number) {
+  if ((double.tryParse(number) != null)) {
+    return true;
+  }
+  return false;
+}
+
+bool isOperator(String userInput) {
+  if ((userInput == '+') ||
+      (userInput == '/') ||
+      (userInput == '-') ||
+      (userInput == 'x')) {
+    return true;
+  }
+  return false;
+}
+
+double operation(String operator, double firstNumber, double secondNumber) {
+  if (operator == '+') {
+    return firstNumber + secondNumber;
+  } else if (operator == '/') {
+    return firstNumber / secondNumber;
+  } else if (operator == '-') {
+    return firstNumber - secondNumber;
+  } else if (operator == 'x') {
+    return firstNumber * secondNumber;
+  } else {
+    return 0;
+  }
+}
+
+void processInput(String userInput) {
+  if (isNumber(userInput)) {
+    if (binaryOperationRequested == true) {
+      lastNumber = double.parse(displayedNumber.value);
+      displayedNumber.value = userInput;
+      binaryOperationRequested = false;
+    } else if (displayedNumber.value == '0') {
+      displayedNumber.value = userInput;
+    } else {
+      displayedNumber.value = displayedNumber.value + userInput;
+    }
+  }
+
+  if (isOperator(userInput)) {
+    binaryOperationRequested = true;
+    lastOperator = userInput;
+  }
+
+  if (((userInput == '.') && (displayedNumber.value == '0')) ||
+      ((userInput == '.') && (binaryOperationRequested == true)) ||
+      ((userInput == '.') && !(displayedNumber.value.contains('.')))) {
+    displayedNumber.value = displayedNumber.value + userInput;
+  }
+
+  if (userInput == 'AC') {
+    displayedNumber.value = '0';
+    lastNumber = 0;
+    lastOperator = '';
+    binaryOperationRequested = false;
+  }
+
+  // TODO: Fazer que ao clicar no operador novamente ele
+  //       opera com o resultado em tela.
+
+  if (userInput == '=') {
+    double temp = double.parse(displayedNumber.value);
+    displayedNumber.value =
+        operation(lastOperator, lastNumber, double.parse(displayedNumber.value))
+            .toString();
+    lastNumber = temp;
+    lastOperator = '';
+    binaryOperationRequested = false;
+  }
+
+  if (userInput == '%') {
+    displayedNumber.value =
+        (double.parse(displayedNumber.value) / 100).toString();
+  }
+
+  if (userInput == '+/-') {
+    return;
+  }
+
+  return;
+}
+
+// isNumber
+//  '0~9'
+//  ','
+
+// isOperator
+//  '/'
+//  '+'
+//  'x'
+//  '-'
+
+// AC
+//  '0'
+
+// =
+// %
+// +/-
