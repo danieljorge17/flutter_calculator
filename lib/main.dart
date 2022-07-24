@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// =================> Global Variables <================= //
+
 const int colorRed = 0xFFDD4545;
 const int colorBlue = 0xFF578DD9;
 const int colorDark = 0xFF373E61;
@@ -11,9 +13,13 @@ double lastNumber = 0;
 String lastOperator = '';
 bool binaryOperationRequested = false;
 
+// =================> Main <================= //
+
 void main() {
   runApp(const MyApp());
 }
+
+// =================> Frontend <================= //
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -223,6 +229,8 @@ class Display extends StatelessWidget {
   }
 }
 
+// =================> Backend <================= //
+
 bool isNumber(var number) {
   if ((double.tryParse(number) != null)) {
     return true;
@@ -303,26 +311,10 @@ void processInput(String userInput) {
         (double.parse(displayedNumber.value) / 100).toString();
   }
 
+  // TODO: Implementar botão de +/-
   if (userInput == '+/-') {
     return;
   }
 
   return;
 }
-
-// isNumber
-//  '0~9'
-//  ','
-
-// isOperator
-//  '/'
-//  '+'
-//  'x'
-//  '-'
-
-// AC
-//  '0'
-
-// =
-// %
-// +/-
